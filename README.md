@@ -1,5 +1,11 @@
 # 💫 About Me:
-I am currently studying B-Tech CSE
+👋 Hey there! I'm Satwik Naik, a passionate Cloud Technology and Full-Stack Technology enthusiast, currently pursuing B.Tech in Computer Science at PES University, Bangalore.
+
+🔹 I specialize in Cloud Computing, Full-Stack Development, and Distributed Systems.
+🔹 Enthusiastic about Spring Boot, Big Data Technologies, and Cloud Infrastructure.
+🔹 Constantly exploring AWS, DevOps, and Microservices while contributing to open-source projects.
+
+💡 Currently working on AP Monitor (Cloud Computing Project) and refining my Spring Boot expertise.
 
 
 ## 🌐 Socials:
