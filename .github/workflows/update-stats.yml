@@ -3,7 +3,7 @@ name: Update GitHub Stats
 on:
   schedule:
     - cron: "0 */12 * * *"  # Runs every 12 hours
-  workflow_dispatch:
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   update-readme:
@@ -11,32 +11,32 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Fetch full history to avoid conflicts
 
       - name: Fetch GitHub Stats
         run: |
-          curl -o github-stats.svg "https://github-readme-stats.vercel.app/api?username=naiksatwik&theme=shadow_green&hide_border=false&include_all_commits=true&count_private=true"
-          curl -o github-streak.svg "https://streak-stats.demolab.com/?user=naiksatwik&theme=shadow_green&hide_border=false"
-          curl -o github-langs.svg "https://github-readme-stats.vercel.app/api/top-langs/?username=naiksatwik&theme=shadow_green&hide_border=false&layout=compact"
+          curl -s "https://api.github.com/users/naiksatwik" > github_data.json
+          TOTAL_COMMITS=$(curl -s "https://api.github.com/users/naiksatwik" | jq '.public_repos + .total_private_repos')
+          FOLLOWERS=$(jq '.followers' github_data.json)
+          FOLLOWING=$(jq '.following' github_data.json)
+          STARS=$(curl -s "https://api.github.com/users/naiksatwik/starred?per_page=1" | jq 'length')
+          LANGUAGES=$(curl -s "https://github-readme-stats.vercel.app/api/top-langs/?username=naiksatwik&layout=compact" | jq -r '.language')
 
-      - name: Configure Git
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
-      - name: Force Sync with Remote
-        continue-on-error: true
-        run: |
-          git pull --rebase origin main || git rebase --abort
-          git reset --hard origin/main  # Force sync to match remote
+          echo "Updating README.md with real-time stats..."
+          sed -i "/<!--START_STATS-->/, /<!--END_STATS-->/c\
+          <!--START_STATS-->\n\
+          ### 📊 **GitHub Stats (Updated Every 12 Hours)**\n\
+          - 🔥 **Total Commits:** $TOTAL_COMMITS\n\
+          - ⭐ **Total Stars:** $STARS\n\
+          - 👥 **Followers:** $FOLLOWERS\n\
+          - 🚀 **Following:** $FOLLOWING\n\
+          - 🏆 **Top Languages Used:** $LANGUAGES\n\
+          <!--END_STATS-->" README.md
 
       - name: Commit and Push Changes
         run: |
-          git add .
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-            exit 0
-          fi
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add README.md
           git commit -m "Updated GitHub stats dynamically"
-          git push --force origin main  # Force push to overwrite conflicts
+          git pull --rebase
+          git push
